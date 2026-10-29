@@ -83,6 +83,7 @@ kotlin {
             implementation(libs.koin.androidx.compose)
 
             implementation(libs.jetbrains.ui.tooling.preview)
+            implementation(libs.ui.tooling.preview)
             implementation(libs.constraintlayout.compose)
 
             api(libs.work.runtime.ktx)
@@ -108,6 +109,7 @@ kotlin {
 
             // Login WebViews: startUpWebView moves Chromium startup off the main thread
             implementation(libs.androidx.webkit)
+            api(libs.coil.network.okhttp)
         }
         commonMain.dependencies {
             implementation(libs.runtime)
@@ -122,8 +124,6 @@ kotlin {
             // Compose
             implementation(libs.compose.material3.adaptive)
             implementation(libs.compose.material.ripple)
-
-            implementation(libs.ui.tooling.preview)
 
             // Other module
             api(projects.common)
@@ -147,7 +147,6 @@ kotlin {
 
             // Coil
             api(libs.coil.compose)
-            api(libs.coil.network.okhttp)
             api(libs.kmpalette.core)
             api(libs.kmpalette.network)
             implementation(libs.materialkolor)
