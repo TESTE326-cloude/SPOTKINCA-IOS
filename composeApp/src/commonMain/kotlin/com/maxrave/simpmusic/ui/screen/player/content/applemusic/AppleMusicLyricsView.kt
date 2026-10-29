@@ -231,15 +231,6 @@ internal fun AppleMusicLyricsView(
                                 textAlign = TextAlign.End,
                                 modifier = Modifier.fillMaxWidth(),
                             )
-                            val provider = appleMusicLyricsProviderText(lyricsData)
-                            if (provider.isNotBlank()) {
-                                Text(
-                                    text = provider,
-                                    style = typography.footer,
-                                    textAlign = TextAlign.End,
-                                    modifier = Modifier.fillMaxWidth(),
-                                )
-                            }
                         }
                     },
                 )

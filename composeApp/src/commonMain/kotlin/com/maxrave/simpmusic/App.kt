@@ -495,7 +495,8 @@ fun App(
         // The setting governs Desktop too, the same as Android: off, every glass surface draws flat.
         liquidGlassEnabled = isLiquidGlassEnabled == TRUE,
     ) {
-        if (!isOfficialBuild) {
+        // Unofficial build check disabled for SpotKinca
+        if (false) {
             UnofficialBuildScreen()
             return@AppTheme
         }

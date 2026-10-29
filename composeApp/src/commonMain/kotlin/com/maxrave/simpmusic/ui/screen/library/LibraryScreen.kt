@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -237,16 +238,18 @@ fun LibraryScreen(
     // The floating chip row refracts the page scrolling under it, so the page is the glass source and
     // the row its sibling (nesting the row inside the source is the RuntimeShader feedback loop).
     val chipBackdrop = rememberBackdrop(MaterialTheme.colorScheme.background)
-    Crossfade(
-        modifier = Modifier.then(if (LocalLiquidGlassEnabled.current) Modifier.layerBackdrop(chipBackdrop) else Modifier).hazeSource(hazeState),
-        targetState = currentFilter,
-    ) { filter ->
+    // Optimized for maximum fluidity: instant tab switching without heavy Crossfade jank
+    Box(
+        modifier = Modifier.then(if (LocalLiquidGlassEnabled.current) Modifier.layerBackdrop(chipBackdrop) else Modifier).hazeSource(hazeState).fillMaxSize(),
+    ) {
+        val filter = currentFilter
         when (filter) {
             LibraryChipType.YOUR_LIBRARY -> {
                 val state = rememberLazyListState()
                 val isScrollingUp by state.isScrollingUp()
                 LaunchedEffect(state) {
                     snapshotFlow { state.firstVisibleItemIndex }
+                        .distinctUntilChanged()
                         .collect {
                             if (it <= 1) {
                                 onScrolling.invoke(true)
@@ -517,6 +520,10 @@ fun LibraryScreen(
             LibraryChipType.entries.forEach { type ->
                 // Mix for you left this row for a tab of its own.
                 if (type == LibraryChipType.YOUTUBE_MIX_FOR_YOU) {
+                    return@forEach
+                }
+                // SimpMusic Charts chip is removed from the library row.
+                if (type == LibraryChipType.CHART) {
                     return@forEach
                 }
                 if (type == LibraryChipType.YOUTUBE_MUSIC_PLAYLIST && !loggedIn) {
