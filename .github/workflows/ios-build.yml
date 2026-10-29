@@ -1,9 +1,20 @@
-name: Build iOS Artifacts
+name: Build iOS Artifacts & Frameworks
 
 on:
   workflow_dispatch:
   push:
-    branches: [ "feature/ios-support" ]
+    branches:
+      - feature/ios-support
+      - main
+      - dev
+  pull_request:
+    branches:
+      - feature/ios-support
+      - main
+      - dev
+
+permissions:
+  contents: read
 
 jobs:
   build-ios:
@@ -17,22 +28,25 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '21'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Build iOS frameworks
+        run: >-
+          ./gradlew
+          :composeApp:linkDebugFrameworkIosArm64
+          :composeApp:linkDebugFrameworkIosSimulatorArm64
+          --stacktrace
 
-      - name: Build iOS Frameworks (Simulator & Device)
-        run: ./gradlew :composeApp:linkDebugFrameworkIosArm64 :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace
-
-      - name: Archive Frameworks
+      - name: Upload framework artifacts
         uses: actions/upload-artifact@v4
         with:
           name: SpotKinca-iOS-Frameworks
           path: |
             composeApp/build/bin/iosArm64/debugFramework/*.framework
             composeApp/build/bin/iosSimulatorArm64/debugFramework/*.framework
+          if-no-files-found: error
+          retention-days: 7

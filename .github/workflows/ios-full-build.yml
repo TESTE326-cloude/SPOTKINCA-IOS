@@ -1,8 +1,11 @@
 name: Build iOS Full App .app / .ipa
+
 on:
   workflow_dispatch:
   push:
-    branches: [ "feature/ios-support" ]
+    branches: [ "feature/ios-support", "main", "dev" ]
+  pull_request:
+    branches: [ "feature/ios-support", "main", "dev" ]
 
 jobs:
   build-ios-app:
@@ -25,7 +28,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build iOS Framework (Device & Simulator)
+      - name: Build iOS Frameworks (Device & Simulator)
         run: ./gradlew :composeApp:linkDebugFrameworkIosArm64 :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace
 
       - name: Upload Framework Artifacts
