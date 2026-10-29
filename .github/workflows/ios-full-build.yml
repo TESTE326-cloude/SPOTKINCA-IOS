@@ -25,19 +25,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build iOS Framework
-        run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
-
-      - name: Build Xcode Project for Simulator (Test build)
-        run: |
-          cd iosApp
-          # Se houver projeto Xcode configurado, compila o simulador para garantir integridade
-          if [ -d "iosApp.xcodeproj" ]; then
-            xcodebuild -project iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO || echo "Xcode build requires full Xcode project configuration"
-          fi
+      - name: Build iOS Framework (Device & Simulator)
+        run: ./gradlew :composeApp:linkDebugFrameworkIosArm64 :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace
 
       - name: Upload Framework Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: SpotKinca-iOS-BuildOutput
-          path: composeApp/build/bin/iosSimulatorArm64/debugFramework/*.framework
+          name: SpotKinca-iOS-Frameworks
+          path: |
+            composeApp/build/bin/iosArm64/debugFramework/*.framework
+            composeApp/build/bin/iosSimulatorArm64/debugFramework/*.framework
