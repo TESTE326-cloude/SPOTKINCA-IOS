@@ -1,0 +1,6 @@
+{
+  "project.type": "application",
+  "dependencies": {
+    "composeApp": "file:../../composeApp"
+  }
+}
