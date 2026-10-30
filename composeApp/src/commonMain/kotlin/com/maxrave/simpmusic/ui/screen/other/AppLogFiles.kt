@@ -9,8 +9,11 @@ import com.maxrave.simpmusic.utils.VersionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.number
-import java.io.File
-import java.io.RandomAccessFile
+import kotlinx.io.buffered
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
+import kotlinx.io.readByteArray
+import kotlinx.io.readString
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -63,20 +66,21 @@ internal class LogTail(
 
     /** True when [lines] changed. */
     fun poll(): Boolean {
-        val files = Logger.logFiles(name).map(::File)
-        val live = files.lastOrNull() ?: return false
-        val size = live.length()
+        val filePaths = Logger.logFiles(name)
+        val livePathStr = filePaths.lastOrNull() ?: return false
+        val livePath = Path(livePathStr)
+        val size = SystemFileSystem.metadataOrNull(livePath)?.size ?: 0L
         return when {
             // First read, or the live file rolled over and started again from empty.
             liveOffset < 0 || size < liveOffset -> {
-                reload(files)
+                reload(filePaths)
                 true
             }
 
             size == liveOffset -> false
 
             else -> {
-                val (text, end) = readCompleteLines(live, liveOffset)
+                val (text, end) = readCompleteLines(livePathStr, liveOffset)
                 liveOffset = end
                 if (text.isEmpty()) return false
                 append(text)
@@ -85,11 +89,20 @@ internal class LogTail(
         }
     }
 
-    private fun reload(files: List<File>) {
+    private fun reload(filePaths: List<String>) {
         nextId = 0
         val text = StringBuilder()
-        files.dropLast(1).filter(File::exists).forEach { text.append(it.readText()) }
-        val (liveText, end) = readCompleteLines(files.last(), 0)
+        filePaths.dropLast(1).forEach { pathStr ->
+            val p = Path(pathStr)
+            if (SystemFileSystem.exists(p)) {
+                runCatching {
+                    SystemFileSystem.source(p).buffered().use { src ->
+                        text.append(src.readString())
+                    }
+                }
+            }
+        }
+        val (liveText, end) = readCompleteLines(filePaths.last(), 0)
         text.append(liveText)
         liveOffset = end
         lines = emptyList()
@@ -112,19 +125,32 @@ internal class LogTail(
 
 /** Everything from [from] to the last complete line, and the offset just past it. */
 private fun readCompleteLines(
-    file: File,
+    pathStr: String,
     from: Long,
 ): Pair<String, Long> {
-    if (!file.exists()) return "" to 0L
-    RandomAccessFile(file, "r").use { raf ->
-        val length = raf.length()
+    val path = Path(pathStr)
+    if (!SystemFileSystem.exists(path)) return "" to 0L
+    try {
+        val metadata = SystemFileSystem.metadataOrNull(path)
+        val length = metadata?.size ?: return "" to 0L
         if (length <= from) return "" to from
-        val bytes = ByteArray((length - from).toInt())
-        raf.seek(from)
-        raf.readFully(bytes)
-        val end = bytes.lastIndexOf('\n'.code.toByte())
-        if (end < 0) return "" to from
-        return bytes.decodeToString(0, end + 1) to from + end + 1
+
+        SystemFileSystem.source(path).buffered().use { source ->
+            var skipped = 0L
+            while (skipped < from) {
+                val toSkip = minOf(from - skipped, 8192L)
+                val skippedBytes = source.skip(toSkip)
+                if (skippedBytes <= 0) break
+                skipped += skippedBytes
+            }
+            val bytesToRead = (length - from).toInt()
+            val bytes = source.readByteArray(bytesToRead)
+            val end = bytes.lastIndexOf('\n'.code.toByte())
+            if (end < 0) return "" to from
+            return bytes.decodeToString(0, end + 1) to from + end + 1
+        }
+    } catch (e: Exception) {
+        return "" to from
     }
 }
 
@@ -219,7 +245,16 @@ internal suspend fun exportLog(chooserTitle: String): Boolean {
                     for (name in listOf(Logger.APP_LOG, Logger.ERROR_LOG)) {
                         appendLine()
                         appendLine("===== $name.log =====")
-                        Logger.logFiles(name).map(::File).filter(File::exists).forEach { append(it.readText()) }
+                        Logger.logFiles(name).forEach { pathStr ->
+                            val p = Path(pathStr)
+                            if (SystemFileSystem.exists(p)) {
+                                runCatching {
+                                    SystemFileSystem.source(p).buffered().use { src ->
+                                        append(src.readString())
+                                    }
+                                }
+                            }
+                        }
                     }
                 }.let(::redactSecrets).encodeToByteArray()
             }.getOrNull()
