@@ -137,11 +137,12 @@ private fun readCompleteLines(
 
         SystemFileSystem.source(path).buffered().use { source ->
             var skipped = 0L
+            val buffer = ByteArray(8192)
             while (skipped < from) {
-                val toSkip = minOf(from - skipped, 8192L)
-                val skippedBytes = source.skip(toSkip)
-                if (skippedBytes <= 0) break
-                skipped += skippedBytes
+                val toRead = minOf(from - skipped, buffer.size.toLong()).toInt()
+                val read = source.readAtMostTo(buffer, 0, toRead)
+                if (read <= 0) break
+                skipped += read
             }
             val bytesToRead = (length - from).toInt()
             val bytes = source.readByteArray(bytesToRead)
@@ -238,7 +239,7 @@ private fun redactSecrets(text: String): String = SECRETS.fold(text) { acc, (pat
 /** Every log file, oldest first, as one redacted text file handed to [shareImage]. */
 internal suspend fun exportLog(chooserTitle: String): Boolean {
     val bytes =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             runCatching {
                 buildString {
                     appendLine("SimpMusic ${VersionManager.getVersionName()} · ${getPlatform().osName()}")

@@ -97,7 +97,7 @@ class PlaylistViewModel(
     init {
         viewModelScope.launch {
             val listTrackStringJob =
-                launch(Dispatchers.IO) {
+                launch(Dispatchers.Default) {
                     downloadState
                         .collectLatest { state ->
                             newUpdateJob?.cancel()

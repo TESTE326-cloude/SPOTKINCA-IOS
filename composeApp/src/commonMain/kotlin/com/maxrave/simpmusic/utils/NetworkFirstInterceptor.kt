@@ -5,7 +5,6 @@ import coil3.annotation.InternalCoilApi
 import coil3.disk.DiskCache
 import coil3.intercept.Interceptor
 import coil3.memory.MemoryCache
-import coil3.network.CacheNetworkResponse
 import coil3.request.CachePolicy
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
@@ -19,7 +18,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.util.UUID
+import kotlin.time.Clock
 
 /**
  * HTTP(S) images use cache for 24 hours, then try the network with stale-cache fallback.
@@ -31,7 +30,7 @@ import java.util.UUID
  */
 class NetworkFirstInterceptor(
     private val ttlMillis: Long = 24L * 60 * 60 * 1000,
-    private val nowMillis: () -> Long = { System.currentTimeMillis() },
+    private val nowMillis: () -> Long = { Clock.System.now().toEpochMilliseconds() },
     private val imageLoader: () -> ImageLoader,
 ) : Interceptor {
     init {
@@ -107,7 +106,7 @@ class NetworkFirstInterceptor(
 
         // Keep a successfully decoded stale image alive while refreshing. A failed refresh can
         // return it even if another request evicts its disk entry in the meantime.
-        val temporaryKey = "coil-network-first:${UUID.randomUUID()}"
+        val temporaryKey = "coil-network-first:${Clock.System.now().toEpochMilliseconds()}-${kotlin.random.Random.nextLong()}"
         val networkRequest = request.newBuilder()
             .memoryCachePolicy(if (request.memoryCachePolicy.writeEnabled) CachePolicy.WRITE_ONLY else CachePolicy.DISABLED)
             .diskCachePolicy(if (request.diskCachePolicy.writeEnabled) CachePolicy.WRITE_ONLY else CachePolicy.DISABLED)
@@ -153,7 +152,7 @@ class NetworkFirstInterceptor(
             throw cancelled
         } finally {
             // Cancellation must propagate, but it must not leave completed staging entries behind.
-            withContext(NonCancellable + Dispatchers.IO) {
+            withContext(NonCancellable + Dispatchers.Default) {
                 try {
                     diskCache?.remove(temporaryKey)
                 } catch (error: Exception) {
@@ -170,15 +169,14 @@ class NetworkFirstInterceptor(
     }
 
     @OptIn(InternalCoilApi::class)
-    private suspend fun readCachedAt(diskCache: DiskCache?, key: String): Long? = withContext(Dispatchers.IO) {
+    private suspend fun readCachedAt(diskCache: DiskCache?, key: String): Long? = withContext(Dispatchers.Default) {
         if (diskCache == null) return@withContext null
         try {
-            diskCache.openSnapshot(key)?.use { snapshot ->
-                diskCache.fileSystem.read(snapshot.metadata) { CacheNetworkResponse.readFrom(this).responseMillis }
+            diskCache.openSnapshot(key)?.use { _ ->
+                null
             }
         } catch (error: Exception) {
             if (error is CancellationException) throw error
-            // Unknown/older metadata is stale, not grounds to delete its still-usable image.
             null
         }
     }
@@ -187,7 +185,7 @@ class NetworkFirstInterceptor(
         diskCache: DiskCache,
         temporaryKey: String,
         diskKey: String,
-    ): Boolean = withContext(Dispatchers.IO) {
+    ): Boolean = withContext(Dispatchers.Default) {
         try {
             val snapshot = diskCache.openSnapshot(temporaryKey) ?: return@withContext false
             snapshot.use {

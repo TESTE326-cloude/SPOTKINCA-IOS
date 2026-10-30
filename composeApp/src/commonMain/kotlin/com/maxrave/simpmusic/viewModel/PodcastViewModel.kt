@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 import simpmusic.composeapp.generated.resources.Res
 import simpmusic.composeapp.generated.resources.share_url
 
@@ -256,7 +257,7 @@ class PodcastViewModel(
         viewModelScope.launch {
             podcastRepository.updatePodcastInLibraryNow(id).collectLatest {
                 // Podcast đã được cập nhật trong thư viện
-                log("Podcast $id updated in library at ${System.currentTimeMillis()}")
+                log("Podcast $id updated in library at ${Clock.System.now().toEpochMilliseconds()}")
             }
         }
     }

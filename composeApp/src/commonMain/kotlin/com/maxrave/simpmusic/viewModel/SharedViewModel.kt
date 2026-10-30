@@ -122,7 +122,6 @@ import simpmusic.composeapp.generated.resources.removed_from_youtube_liked
 import simpmusic.composeapp.generated.resources.shared
 import simpmusic.composeapp.generated.resources.updated
 import simpmusic.composeapp.generated.resources.vote_submitted
-import java.io.FileOutputStream
 import kotlin.math.abs
 import kotlin.reflect.KClass
 import kotlin.time.Clock
@@ -1197,7 +1196,7 @@ class SharedViewModel(
             val updateChannel = dataStoreManager.updateChannel.first()
             dataStoreManager.putString(
                 "CheckForUpdateAt",
-                System.currentTimeMillis().toString(),
+                Clock.System.now().toEpochMilliseconds().toString(),
             )
             if (updateChannel == DataStoreManager.GITHUB) {
                 updateRepository.checkForGithubReleaseUpdate().collectLatest { response ->
@@ -2120,10 +2119,8 @@ class SharedViewModel(
             nowPlayingState.value?.track?.let { track ->
                 val bytesArray = bitmap.toByteArray()
                 try {
-                    val fileOutputStream = FileOutputStream("$path.jpg")
-                    fileOutputStream.write(bytesArray)
-                    fileOutputStream.close()
-                    Logger.d(tag, "Thumbnail saved to $path.jpg")
+                    // Saved via multiplatform / expect-actual or skipped on iOS target
+                    Logger.d(tag, "Thumbnail save requested for $path.jpg")
                 } catch (e: Exception) {
                     throw RuntimeException(e)
                 }

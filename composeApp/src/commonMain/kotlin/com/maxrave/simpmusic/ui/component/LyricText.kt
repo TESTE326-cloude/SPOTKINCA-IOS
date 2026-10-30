@@ -11,12 +11,20 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
-import java.text.Bidi
+fun isRtlText(text: String): Boolean {
+    for (char in text) {
+        val codePoint = char.code
+        if (codePoint in 0x0590..0x08FF || codePoint in 0xFB50..0xFDFF || codePoint in 0xFE70..0xFEFF) {
+            return true
+        }
+    }
+    return false
+}
 
 @Composable
 internal fun rememberLyricLayoutDirection(text: String): LayoutDirection =
     remember(text) {
-        if (Bidi(text, Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT).baseIsLeftToRight()) LayoutDirection.Ltr else LayoutDirection.Rtl
+        if (isRtlText(text)) LayoutDirection.Rtl else LayoutDirection.Ltr
     }
 
 /**

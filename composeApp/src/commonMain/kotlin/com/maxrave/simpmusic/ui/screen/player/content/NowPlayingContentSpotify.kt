@@ -1553,7 +1553,7 @@ fun NowPlayingContentSpotify(
                                         text =
                                             stringResource(
                                                 Res.string.view_count,
-                                                "%,d".format(state.screenData.songInfoData?.viewCount),
+                                                state.screenData.songInfoData?.viewCount?.toString() ?: "0",
                                             ),
                                         style = typo().labelMedium,
                                         color = Color.White,
