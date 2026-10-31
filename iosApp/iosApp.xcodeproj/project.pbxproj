@@ -9,12 +9,14 @@
 /* Begin PBXBuildFile section */
 		100000022026000100000101 /* iosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000012026000100000101 /* iosApp.swift */; };
 		100000042026000100000103 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000032026000100000103 /* ContentView.swift */; };
+		100000122026000100000112 /* ComposeApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 100000132026000100000113 /* ComposeApp.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		100000012026000100000101 /* iosApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iosApp.swift; sourceTree = "<group>"; };
 		100000032026000100000103 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		100000052026000100000105 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		100000132026000100000113 /* ComposeApp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ComposeApp.framework; path = "../composeApp/build/bin/iosSimulatorArm64/debugFramework/ComposeApp.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -22,6 +24,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				100000122026000100000112 /* ComposeApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,6 +35,7 @@
 			isa = PBXGroup;
 			children = (
 				100000082026000100000108 /* iosApp */,
+				100000132026000100000113 /* ComposeApp.framework */,
 				100000052026000100000105 /* iosApp.app */,
 			);
 			sourceTree = "<group>";
@@ -122,6 +126,10 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../composeApp/build/bin/iosSimulatorArm64/debugFramework",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -148,6 +156,10 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../composeApp/build/bin/iosArm64/debugFramework",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -194,6 +206,7 @@
 /* Begin XCConfigurationList section */
 		1000000B202600010000010B /* Build configuration list for PBXNativeTarget "iosApp" */ = {
 			isa = XCConfigurationList;
+			buildConfigurationList = "codesign_setting";
 			buildConfigurations = (
 				1000000E202600010000010E /* Debug */,
 				1000000F202600010000010F /* Release */,
