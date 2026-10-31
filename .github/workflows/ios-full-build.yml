@@ -31,10 +31,13 @@ jobs:
       - name: Build iOS Frameworks (Device & Simulator)
         run: ./gradlew :composeApp:linkDebugFrameworkIosArm64 :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace
 
+      - name: Show available simulators
+        run: xcrun simctl list devices available
+
       - name: Build Xcode App (Simulator)
         run: |
           cd iosApp
-          xcodebuild -project iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO FRAMEWORK_SEARCH_PATHS="$(pwd)/../composeApp/build/bin/iosSimulatorArm64/debugFramework" build
+          xcodebuild -project iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 16" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build
 
       - name: Upload iOS Simulator App Artifact
         uses: actions/upload-artifact@v4
