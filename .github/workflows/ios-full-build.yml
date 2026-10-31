@@ -28,8 +28,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build iOS Frameworks (Device & Simulator)
-        run: ./gradlew :composeApp:linkDebugFrameworkIosArm64 :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace
+      - name: Build iOS Framework (Device - iosArm64)
+        run: ./gradlew :composeApp:linkDebugFrameworkIosArm64 --stacktrace
+
+      - name: Build iOS Framework (Simulator - iosSimulatorArm64)
+        run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace
 
       - name: Show available simulators
         run: xcrun simctl list devices available

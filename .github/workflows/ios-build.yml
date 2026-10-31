@@ -34,12 +34,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build iOS frameworks
-        run: >-
-          ./gradlew
-          :composeApp:linkDebugFrameworkIosArm64
-          :composeApp:linkDebugFrameworkIosSimulatorArm64
-          --stacktrace
+      - name: Build iOS Framework (Device - iosArm64)
+        run: ./gradlew :composeApp:linkDebugFrameworkIosArm64 --stacktrace
+
+      - name: Build iOS Framework (Simulator - iosSimulatorArm64)
+        run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace
 
       - name: Upload framework artifacts
         uses: actions/upload-artifact@v4
