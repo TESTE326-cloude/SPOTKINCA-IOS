@@ -63,7 +63,39 @@ jobs:
             echo "ERROR: Device app was not generated"
             exit 1
           }
+          test -f "$APP/Info.plist" || {
+            echo "ERROR: Info.plist missing"
+            exit 1
+          }
+          test -f "$APP/iosApp" || {
+            echo "ERROR: Main executable missing"
+            exit 1
+          }
           echo "Device app generated successfully"
+
+      - name: Package Unsigned IPA
+        run: |
+          APP="iosApp/build/DerivedData/Build/Products/Debug-iphoneos/iosApp.app"
+          TEMP_DIR="$RUNNER_TEMP/spotkinca-ipa"
+
+          rm -rf "$TEMP_DIR"
+          mkdir -p "$TEMP_DIR/Payload"
+
+          ditto "$APP" "$TEMP_DIR/Payload/iosApp.app"
+
+          cd "$TEMP_DIR"
+          /usr/bin/zip -qry "$GITHUB_WORKSPACE/SpotKinca-iOS-Unsigned.ipa" Payload
+
+          test -s "$GITHUB_WORKSPACE/SpotKinca-iOS-Unsigned.ipa"
+          echo "Unsigned IPA generated successfully"
+
+      - name: Upload Unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpotKinca-iOS-Unsigned-IPA
+          path: SpotKinca-iOS-Unsigned.ipa
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Upload iOS Device App
         uses: actions/upload-artifact@v4
