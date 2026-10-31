@@ -1,12 +1,20 @@
-```yaml
+
 name: Build iOS Full App
 
 on:
   workflow_dispatch:
   push:
-    branches: ["feature/ios-support", "main", "dev", "master"]
+    branches:
+      - feature/ios-support
+      - main
+      - dev
+      - master
   pull_request:
-    branches: ["feature/ios-support", "main", "dev", "master"]
+    branches:
+      - feature/ios-support
+      - main
+      - dev
+      - master
 
 jobs:
   build-ios-app:
@@ -51,12 +59,11 @@ jobs:
       - name: Verify Device App
         run: |
           APP="iosApp/build/DerivedData/Build/Products/Debug-iphoneos/iosApp.app"
-          if [ ! -d "$APP" ]; then
-            echo "ERROR: iOS device app was not generated."
+          test -d "$APP" || {
+            echo "ERROR: Device app was not generated"
             exit 1
-          fi
-          echo "Device app generated successfully."
-          ls -la "$APP"
+          }
+          echo "Device app generated successfully"
 
       - name: Upload iOS Device App
         uses: actions/upload-artifact@v4
@@ -95,4 +102,3 @@ jobs:
             composeApp/build/bin/iosSimulatorArm64/debugFramework/*.framework
           if-no-files-found: error
           retention-days: 7
-```
