@@ -3,9 +3,9 @@ name: Build iOS Full App .app / .ipa
 on:
   workflow_dispatch:
   push:
-    branches: [ "feature/ios-support", "main", "dev" ]
+    branches: [ "feature/ios-support", "main", "dev", "master" ]
   pull_request:
-    branches: [ "feature/ios-support", "main", "dev" ]
+    branches: [ "feature/ios-support", "main", "dev", "master" ]
 
 jobs:
   build-ios-app:
@@ -31,10 +31,23 @@ jobs:
       - name: Build iOS Frameworks (Device & Simulator)
         run: ./gradlew :composeApp:linkDebugFrameworkIosArm64 :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace
 
-      - name: Upload Framework Artifacts
+      - name: Build Xcode App (Simulator)
+        run: |
+          cd iosApp
+          xcodebuild -project iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build
+
+      - name: Upload iOS Simulator App Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpotKinca-iOS-SimulatorApp
+          path: iosApp/build/Debug-iphonesimulator/iosApp.app
+          if-no-files-found: warn
+
+      - name: Upload Frameworks Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: SpotKinca-iOS-Frameworks
           path: |
             composeApp/build/bin/iosArm64/debugFramework/*.framework
             composeApp/build/bin/iosSimulatorArm64/debugFramework/*.framework
+          if-no-files-found: warn
