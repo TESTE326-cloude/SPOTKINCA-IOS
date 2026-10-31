@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_core_common_src_iosmain_kotlin_com_maxrave_common_platform_ios_kt", "label": "Platform.ios.kt", "file_type": "code", "source_file": "core/common/src/iosMain/kotlin/com/maxrave/common/Platform.ios.kt", "source_location": "L1"}], "edges": [], "raw_calls": [], "kotlin_package": "com.maxrave.common"}
