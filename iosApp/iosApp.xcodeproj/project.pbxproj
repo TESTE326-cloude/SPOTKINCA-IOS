@@ -148,10 +148,12 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				ARCHS = arm64;
+				ONLY_ACTIVE_ARCH = YES;
+				EXCLUDED_ARCHS = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../composeApp/build/bin/iosSimulatorArm64/debugFramework",
-					"$(SRCROOT)/../composeApp/build/bin/iosArm64/debugFramework",
 				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -179,10 +181,12 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				INFOPLIST_FILE = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				ARCHS = arm64;
+				ONLY_ACTIVE_ARCH = YES;
+				EXCLUDED_ARCHS = x86_64;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../composeApp/build/bin/iosArm64/releaseFramework",
-					"$(SRCROOT)/../composeApp/build/bin/iosSimulatorArm64/releaseFramework",
 				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
