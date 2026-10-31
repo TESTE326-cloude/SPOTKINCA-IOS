@@ -1,15 +1,17 @@
-name: Build iOS Full App .app / .ipa
+```yaml
+name: Build iOS Full App
 
 on:
   workflow_dispatch:
   push:
-    branches: [ "feature/ios-support", "main", "dev", "master" ]
+    branches: ["feature/ios-support", "main", "dev", "master"]
   pull_request:
-    branches: [ "feature/ios-support", "main", "dev", "master" ]
+    branches: ["feature/ios-support", "main", "dev", "master"]
 
 jobs:
   build-ios-app:
     runs-on: macos-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,41 +21,78 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          distribution: temurin
+          java-version: "21"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission
         run: chmod +x gradlew
 
-      - name: Build iOS Framework (Device - iosArm64)
+      - name: Build iOS Framework - Device
         run: ./gradlew :composeApp:linkDebugFrameworkIosArm64 --stacktrace
 
-      - name: Build iOS Framework (Simulator - iosSimulatorArm64)
+      - name: Build iOS Framework - Simulator
         run: ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64 --stacktrace
 
-      - name: Show available simulators
-        run: xcrun simctl list devices available
-
-      - name: Build Xcode App (Simulator)
+      - name: Build iOS App - Physical Device
         run: |
-          cd iosApp
-          xcodebuild -project iosApp.xcodeproj -scheme iosApp -configuration Debug -sdk iphonesimulator -destination "generic/platform=iOS Simulator" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO build
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath iosApp/build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build
 
-      - name: Upload iOS Simulator App Artifact
+      - name: Verify Device App
+        run: |
+          APP="iosApp/build/DerivedData/Build/Products/Debug-iphoneos/iosApp.app"
+          if [ ! -d "$APP" ]; then
+            echo "ERROR: iOS device app was not generated."
+            exit 1
+          fi
+          echo "Device app generated successfully."
+          ls -la "$APP"
+
+      - name: Upload iOS Device App
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpotKinca-iOS-Device-App-Unsigned
+          path: iosApp/build/DerivedData/Build/Products/Debug-iphoneos/iosApp.app
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Build iOS App - Simulator
+        run: |
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath iosApp/build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload iOS Simulator App
         uses: actions/upload-artifact@v4
         with:
           name: SpotKinca-iOS-SimulatorApp
-          path: iosApp/build/Debug-iphonesimulator/iosApp.app
-          if-no-files-found: warn
+          path: iosApp/build/DerivedData/Build/Products/Debug-iphonesimulator/iosApp.app
+          if-no-files-found: error
+          retention-days: 7
 
-      - name: Upload Frameworks Artifacts
+      - name: Upload Frameworks
         uses: actions/upload-artifact@v4
         with:
           name: SpotKinca-iOS-Frameworks
           path: |
             composeApp/build/bin/iosArm64/debugFramework/*.framework
             composeApp/build/bin/iosSimulatorArm64/debugFramework/*.framework
-          if-no-files-found: warn
+          if-no-files-found: error
+          retention-days: 7
+```
