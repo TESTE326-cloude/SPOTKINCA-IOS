@@ -56,6 +56,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1000000B202600010000010B /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
+				100000142026000100000114 /* Run Script - Gradle Build ComposeApp */,
 				100000062026000100000106 /* Frameworks */,
 				1000000A202600010000010A /* Sources */,
 			);
@@ -100,6 +101,27 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		100000142026000100000114 /* Run Script - Gradle Build ComposeApp */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - Gradle Build ComposeApp";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd \"$SRCROOT/..\"\n./gradlew :composeApp:embedAndSignAppleFrameworkForXcode\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		1000000A202600010000010A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -129,6 +151,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../composeApp/build/bin/iosSimulatorArm64/debugFramework",
+					"$(SRCROOT)/../composeApp/build/bin/iosArm64/debugFramework",
 				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -158,7 +181,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../composeApp/build/bin/iosArm64/debugFramework",
+					"$(SRCROOT)/../composeApp/build/bin/iosArm64/releaseFramework",
+					"$(SRCROOT)/../composeApp/build/bin/iosSimulatorArm64/releaseFramework",
 				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
