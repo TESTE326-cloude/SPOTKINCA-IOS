@@ -146,7 +146,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = "iosApp/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 					SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				ARCHS = arm64;
@@ -180,7 +180,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = "iosApp/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 					SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				ARCHS = arm64;
